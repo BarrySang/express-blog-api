@@ -86,7 +86,84 @@ router.get("/:id", (req, res) => {
 });
 
 // update
-router.put("/", (req, res, next) => {});
+router.put("/", (req, res, next) => {
+  // console.log(Object.keys(req.body));
+  const fieldsToUpdate = Object.keys(req.body);
+  // console.log(fieldsToUpdate.contains("id"));
+  if (fieldsToUpdate.length < 2 || !fieldsToUpdate.includes("id")) {
+    console.log("bad request");
+  } else {
+    console.log("good request");
+    const newFields = fieldsToUpdate.filter((field) => field !== "id");
+    console.log(newFields);
+
+    const sqlQuery =
+      generateSQLQuery("update", "blogs", newFields) + "WHERE id = ?";
+    console.log(sqlQuery);
+
+    // connection.query(sqlQuery, []);
+    const prepStatementsParams = generatePSParams(
+      newFields,
+      req.body,
+      req.body.id
+    );
+    console.log(prepStatementsParams);
+
+    connection.query(
+      sqlQuery,
+      prepStatementsParams,
+      (error, results, fields) => {
+        if (error) {
+          console.log("error: ", error);
+        } else {
+          console.log(results);
+        }
+      }
+    );
+  }
+
+  res.status(200).json({
+    success: 1,
+    data: "request succesful",
+  });
+});
+
+function generatePSParams(fields, reqData = {}, id) {
+  console.log("length ", fields.length);
+  let paramsArray = [];
+  for (let i = 0; i < fields.length; i++) {
+    paramsArray.push(reqData[fields[i]]);
+  }
+
+  paramsArray.push(id);
+
+  return paramsArray;
+}
+
+function generateSQLQuery(method, table, fields = []) {
+  let query = "";
+  // add method
+  query +=
+    method
+      .split("")
+      .map((char) => char.toUpperCase())
+      .join("") +
+    " " +
+    table +
+    " " +
+    "SET" +
+    " ";
+
+  for (let i = 0; i < fields.length; i++) {
+    if (i + 1 !== fields.length) {
+      query += fields[i] + " " + "=" + " " + "?" + ", ";
+    } else {
+      query += fields[i] + " " + "=" + " " + "? ";
+    }
+  }
+
+  return query;
+}
 
 // delete
 router.delete("/:id", (req, res, next) => {
