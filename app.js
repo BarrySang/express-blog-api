@@ -213,12 +213,27 @@ app.post(
   })
 );
 
+app.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+  });
+  console.log("logged out");
+  res.status(200).json({
+    success: 1,
+    data: "logged out",
+  });
+});
+
 app.get("/login-success", (req, res) => {
-  const serverResponse = new ServerResponse(1, "login failed");
+  console.log(res);
+  const serverResponse = new ServerResponse(1, "login succesful");
   res.status(200).json({ serverResponse });
 });
 
 app.get("/login-failure", (req, res) => {
+  console.log(res);
   const serverResponse = new ServerResponse(0, "login failed");
   res.status(200).json({ serverResponse });
 });

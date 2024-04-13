@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const connection = require("../Db");
+const {
+  generatePSParams,
+  generateSQLQuery,
+  isAuth,
+} = require("../lib/lib-functions");
 
 // create
-router.post("/", (req, res) => {
+router.post("/", isAuth, (req, res) => {
   const { user_id, title, body } = req.body;
 
   console.log(req.body);
@@ -127,43 +132,6 @@ router.put("/", (req, res, next) => {
     data: "request succesful",
   });
 });
-
-function generatePSParams(fields, reqData = {}, id) {
-  console.log("length ", fields.length);
-  let paramsArray = [];
-  for (let i = 0; i < fields.length; i++) {
-    paramsArray.push(reqData[fields[i]]);
-  }
-
-  paramsArray.push(id);
-
-  return paramsArray;
-}
-
-function generateSQLQuery(method, table, fields = []) {
-  let query = "";
-  // add method
-  query +=
-    method
-      .split("")
-      .map((char) => char.toUpperCase())
-      .join("") +
-    " " +
-    table +
-    " " +
-    "SET" +
-    " ";
-
-  for (let i = 0; i < fields.length; i++) {
-    if (i + 1 !== fields.length) {
-      query += fields[i] + " " + "=" + " " + "?" + ", ";
-    } else {
-      query += fields[i] + " " + "=" + " " + "? ";
-    }
-  }
-
-  return query;
-}
 
 // delete
 router.delete("/:id", (req, res, next) => {
