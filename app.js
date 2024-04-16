@@ -1,6 +1,10 @@
 const express = require("express");
 const TextGenerator = require("./lib/TextGenerator");
-const { generateBlogs, getUpdatedFields } = require("./lib/lib-functions");
+const {
+  generateBlogs,
+  getUpdatedFields,
+  ServerResponse,
+} = require("./lib/lib-functions");
 const bodyParser = require("body-parser");
 const blogsRouter = require("./routes/blogs");
 const passport = require("passport");
@@ -27,16 +31,6 @@ app.use(
     optionsSuccessStatus: 204,
   })
 );
-
-/**
- * routes
- */
-class ServerResponse {
-  constructor(success, data) {
-    this.success = success;
-    this.data = data;
-  }
-}
 
 // middleware
 app.use(express.json());
@@ -214,11 +208,13 @@ app.post(
 );
 
 app.get("/logout", (req, res, next) => {
-  req.logout((err) => {
-    if (err) {
-      return next(err);
-    }
-  });
+  console.log(req.user);
+  // req.logout((err) => {
+  //   if (err) {
+  //     return next(err);
+  //   }
+  // });
+  req.logOut((err) => console.log(err));
   console.log("logged out");
   res.status(200).json({
     success: 1,
